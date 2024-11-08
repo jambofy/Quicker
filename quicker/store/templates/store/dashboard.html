@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f0f0f0;
+            text-align: center;
+        }
+        .features {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+            flex-wrap: wrap;
+        }
+        .feature {
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 250px;
+            text-align: center;
+        }
+        .feature h2 {
+            margin-top: 0;
+        }
+        .feature p {
+            font-size: 16px;
+            color: #666;
+        }
+        .feature a {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .feature a:hover {
+            background: #0056b3;
+        }
+        footer {
+            background-color: #007bff;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <section class="features">
+        <div class="feature">
+            <h2>Supermarkets</h2>
+            <p>Streamline your shopping experience with self-service kiosks.</p>
+            <a href="{% url 'supermarkets' %}">Start Shopping</a>
+        </div>
+        <div class="feature">
+            <h2>Banks</h2>
+            <p>Manage your transactions and account details effortlessly.</p>
+            <a href="{% url 'banks' %}">Start Shopping</a>
+        </div>
+        <div class="feature">
+            <h2>Government</h2>
+            <p>Access public services and information quickly and easily.</p>
+            <a href="{% url 'government' %}">Start Shopping</a>
+        </div>
+    </section>
+    <footer>
+        <p>&copy; 2024 Quicker. All rights reserved.</p>
+    </footer>
+</body>
+</html>

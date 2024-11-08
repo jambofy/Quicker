@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Self-Checkout</title>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f3f4f6;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .navbar {
+            background-color: #1f2937;
+            padding: 16px;
+            color: #ffffff;
+            text-align: center;
+            font-size: 24px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+
+        .button {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            color: #ffffff;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .button.green {
+            background-color: #10b981;
+        }
+
+        .button.green:hover {
+            background-color: #059669;
+        }
+
+        .button.yellow {
+            background-color: #fbbf24;
+        }
+
+        .button.yellow:hover {
+            background-color: #f59e0b;
+        }
+
+        .button.indigo {
+            background-color: #4f46e5;
+        }
+
+        .button.indigo:hover {
+            background-color: #4338ca;
+        }
+
+        .card {
+            background-color: #ffffff;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        th, td {
+            padding: 12px;
+            border: 1px solid #e5e7eb;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f3f4f6;
+            font-weight: bold;
+        }
+
+        .text-green-400 {
+            color: #34d399;
+        }
+
+        .bg-gray-800 {
+            background-color: #1f2937;
+        }
+
+        .text-gray-100 {
+            color: #f3f4f6;
+        }
+
+        .bg-white {
+            background-color: #ffffff;
+        }
+
+        .footer {
+            background-color: #1f2937;
+            color: #ffffff;
+            text-align: center;
+            padding: 16px;
+            margin-top: 32px;
+            bottom: 0;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .text-lg {
+            font-size: 1.125rem;
+        }
+
+        .text-xl {
+            font-size: 1.25rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        Self-Checkout App
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container">
+        <div class="card">
+            <!-- Barcode Scanner Button -->
+            <div>
+                <button class="button green" id="scanButton">
+                    <i class="fas fa-barcode"></i> Scan Product
+                </button>
+            </div>
+
+            <!-- Cart Section -->
+            <div class="mt-8">
+                <h3 class="text-xl font-semibold mb-4">Your Cart</h3>
+                <div class="overflow-x-auto">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>Total</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="cartItems">
+                            <!-- Dynamically added cart items will appear here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-4 text-right text-lg font-bold">
+                    Subtotal: $<span id="subtotalPrice">0.00</span><br>
+                    Tax (5%): $<span id="taxPrice">0.00</span><br>
+                    Total: $<span id="totalPrice">0.00</span>
+                </div>
+                
+                <button class="button indigo mt-4" id="checkoutButton" onclick="checkout()">
+                    <i class="fas fa-shopping-cart"></i> Checkout
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Barcode Scanner Modal -->
+    <div id="scanner-container" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-80">
+            <span class="text-gray-500 cursor-pointer float-right text-xl" onclick="closeScanner()">×</span>
+            <h3 class="text-lg font-bold mb-4">Scan Barcode</h3>
+            <div id="reader" class="w-full"></div>
+        </div>
+    </div>
+
+   
+    <!-- Barcode Scanning Library -->
+    <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+    <!-- Custom JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const cartItems = document.getElementById('cartItems');
+            const subtotalPriceElement = document.getElementById('subtotalPrice');
+            const taxPriceElement = document.getElementById('taxPrice');
+            const totalPriceElement = document.getElementById('totalPrice');
+            let subtotalPrice = 0;
+            let discount = 0;
+            const taxRate = 0.05;
+
+            // Open the barcode scanner
+            document.getElementById('scanButton').addEventListener('click', function () {
+                document.getElementById('scanner-container').classList.remove('hidden');
+                const html5QrCode = new Html5Qrcode("reader");
+                html5QrCode.start(
+                    { facingMode: "environment" },
+                    {
+                        fps: 10,
+                        qrbox: { width: 250, height: 250 }
+                    },
+                    (decodedText, decodedResult) => {
+                        addItemToCart(decodedText, 10.00); // Example price for scanned item
+                        html5QrCode.stop();
+                        closeScanner();
+                    },
+                    (errorMessage) => {
+                        console.error("Scanning failed:", errorMessage);
+                    }
+                ).catch((err) => {
+                    console.error("Error starting scanner:", err);
+                });
+            });
+
+            // Close the barcode scanner modal
+            window.closeScanner = function () {
+                document.getElementById('scanner-container').classList.add('hidden');
+            };
+
+            // Add item to cart
+            function addItemToCart(name, price) {
+                const quantity = 1; // Example quantity
+                const total = price * quantity;
+
+                const listItem = document.createElement('tr');
+                listItem.innerHTML = `
+                    <td>${name}</td>
+                    <td>$${price.toFixed(2)}</td>
+                    <td>${quantity}</td>
+                    <td>$${total.toFixed(2)}</td>
+                    <td>
+                        <button class="button red" onclick="removeItem(this, ${total})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                cartItems.appendChild(listItem);
+                updatePrice(total);
+            }
+
+            // Remove item from cart
+            window.removeItem = function (button, price) {
+                button.parentElement.parentElement.remove();
+                updatePrice(-price);
+            };
+
+            // Update prices
+            function updatePrice(amount) {
+                subtotalPrice += amount;
+                subtotalPriceElement.textContent = subtotalPrice.toFixed(2);
+                const tax = subtotalPrice * taxRate;
+                taxPriceElement.textContent = tax.toFixed(2);
+                totalPriceElement.textContent = (subtotalPrice + tax - discount).toFixed(2);
+            }
+
+            // Apply discount
+            window.applyDiscount = function () {
+                const code = document.getElementById('discountCode').value.trim();
+                if (code === "DISCOUNT10") { // Example discount code
+                    discount = 10.00; // Example discount amount
+                    updatePrice(0); // Recalculate total with discount
+                } else {
+                    alert("Invalid discount code.");
+                }
+            };
+
+            // Checkout (dummy implementation)
+            window.checkout = function () {
+                alert('Thank you for your purchase!');
+                // Here, implement real checkout functionality with a backend.
+            };
+
+            // User Authentication (dummy implementation)
+            window.toggleLoginModal = function () {
+                document.getElementById('login-modal').classList.toggle('hidden');
+            };
+
+            window.login = function () {
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                alert(`Logged in as ${username}`);
+                toggleLoginModal();
+                // Here, implement a real login functionality with a backend.
+            };
+
+            // User Profile Modal
+            window.toggleProfileModal = function () {
+                document.getElementById('profile-modal').classList.toggle('hidden');
+            };
+
+            // Logout (dummy implementation)
+            window.logout = function () {
+                alert('Logged out successfully!');
+                toggleProfileModal();
+                // Here, implement real logout functionality and clear user session.
+            };
+        });
+    </script>
+</body>
+</html>

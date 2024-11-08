@@ -1,0 +1,49 @@
+<!-- store/templates/store/home.html -->
+{%load static%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Quicker</title>
+    <link rel="stylesheet" href="{% static 'store/styles.css' %}">
+    <style>
+        footer {
+            background-color: #007bff;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Welcome to Quicker!</h1>
+        <p>Your self-service application for supermarkets, banks, and government entities.</p>
+        <div class="buttons">
+            <a href="{% url 'login' %}" class="btn">Login</a>
+            <a href="{% url 'register' %}" class="btn btn-primary">Register</a>
+        </div>
+    </header>
+    <section class="features">
+        <div class="feature">
+            <h2>Supermarkets</h2>
+            <p>Streamline your shopping experience with self-service kiosks.</p>
+        </div>
+        <div class="feature">
+            <h2>Banks</h2>
+            <p>Manage your transactions and account details effortlessly.</p>
+        </div>
+        <div class="feature">
+            <h2>Government</h2>
+            <p>Access public services and information quickly and easily.</p>
+        </div>
+    </section>
+    <footer>
+        <p>&copy; 2024 Quicker. All rights reserved.</p>
+    </footer>
+</body>
+</html>
